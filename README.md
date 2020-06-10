@@ -1,2 +1,2 @@
 # moleculer-keto
-MoleculerJS Keto Middleware and Mixin for an extensible permissions layer
+MoleculerJS Keto Middleware and Mixin for an extensible permissions layer.
