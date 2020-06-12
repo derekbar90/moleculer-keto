@@ -5,12 +5,13 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "noEmitOnError": true,
-    "target": "es5",
+    "target": "ES2017",
     "declaration": true,
     "removeComments": false,
     "noImplicitAny": true,
     "forceConsistentCasingInFileNames": true,
     "noUnusedLocals": true,
+    "esModuleInterop": true,
     "pretty": true
   },
   "include": ["src"]
