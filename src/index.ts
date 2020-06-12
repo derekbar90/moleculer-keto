@@ -12,16 +12,6 @@ export type OryAccessControlPolicyAllowedInput = {
   subject: string;
 };
 
-type PermissionsMiddlewareOptions = {
-  prefix: string;
-  ketoEndpoint: string;
-  hasAccessEndpointsConfig?: {
-    blob: (options: OryAccessControlPolicyAllowedInput) => Promise<{ allowed: boolean }>;
-    regex: (options: OryAccessControlPolicyAllowedInput) => Promise<{ allowed: boolean }>;
-    exact: (options: OryAccessControlPolicyAllowedInput) => Promise<{ allowed: boolean }>;
-  };
-};
-
 type PermissionConfig = {
   subject: string;
   action: string;
@@ -32,7 +22,7 @@ type OryAccessControlPolicyRequest = OryAccessControlPolicyAllowedInput & {
   flavor: string;
 };
 
-export const KetoMiddeware = (options: PermissionsMiddlewareOptions): Middleware => ({
+export const KetoMiddeware: Middleware = {
   // For more info on this wrapper: https://moleculer.services/docs/0.14/middlewares.html#localAction-next-action
   localAction: (next: ActionHandler, action: ActionParams) => {
     // Helper function which will call the isEntityOwner
@@ -102,17 +92,17 @@ export const KetoMiddeware = (options: PermissionsMiddlewareOptions): Middleware
             for (const actionPermission of actionPermissions) {
               // Add Permission Request for the user context on the service resource
               preppedActionPermissions.push({
-                action: `actions:${options.prefix}:${actionPermission.action}`,
-                subject: `subjects:${options.prefix}:${user.id}`,
-                resource: `resources:${options.prefix}:${String(action.name).split('.')[1]}`,
+                action: `actions:${process.env.ROOT_ORG_IDENTIFIER}:${actionPermission.action}`,
+                subject: `subjects:${process.env.ROOT_ORG_IDENTIFIER}:${user.id}`,
+                resource: `resources:${process.env.ROOT_ORG_IDENTIFIER}:${String(action.name).split('.')[1]}`,
                 flavor: actionPermission.flavor,
               });
               // Add Permission Request for the user context on the specific resource by id
               if (ctx.params.id) {
                 preppedActionPermissions.push({
-                  action: `actions:${options.prefix}:${actionPermission.action}`,
-                  subject: `subjects:${options.prefix}:${user.id}`,
-                  resource: `resources:${options.prefix}:${ctx.params.id}`,
+                  action: `actions:${process.env.ROOT_ORG_IDENTIFIER}:${actionPermission.action}`,
+                  subject: `subjects:${process.env.ROOT_ORG_IDENTIFIER}:${user.id}`,
+                  resource: `resources:${process.env.ROOT_ORG_IDENTIFIER}:${ctx.params.id}`,
                   flavor: actionPermission.flavor,
                 });
               }
@@ -127,11 +117,14 @@ export const KetoMiddeware = (options: PermissionsMiddlewareOptions): Middleware
               };
 
               // eslint-disable-next-line no-await-in-loop
-              const ketoResponse = await fetch(`${options.ketoEndpoint}/engines/acp/ory/${[perm.flavor]}/allowed`, {
-                method: 'post',
-                body: JSON.stringify(body),
-                headers: { 'Content-Type': 'application/json' },
-              });
+              const ketoResponse = await fetch(
+                `${process.env.KETO_ADMIN_URL}/engines/acp/ory/${[perm.flavor]}/allowed`,
+                {
+                  method: 'post',
+                  body: JSON.stringify(body),
+                  headers: { 'Content-Type': 'application/json' },
+                }
+              );
 
               const isPermissionAllowed = ketoResponse
                 ? // eslint-disable-next-line no-await-in-loop
@@ -167,7 +160,7 @@ export const KetoMiddeware = (options: PermissionsMiddlewareOptions): Middleware
     // Return original handler, because feature is disabled
     return next;
   },
-});
+};
 
 export const IsOwnerMixin = (typeName: string, ownerKey = 'owner'): ServiceSchema => {
   return {
