@@ -1,4 +1,4 @@
-import { ServiceSchema, Context, Errors, ActionHandler, ActionParams } from 'moleculer';
+import { ServiceSchema, Context, Errors, ActionHandler, ActionParams, Middleware } from 'moleculer';
 import fetch from 'node-fetch';
 import { camelCase } from 'change-case';
 import { UnableToComputerEntityIdError } from './errors/UnableToComputerEntityIdError';
@@ -32,10 +32,9 @@ type OryAccessControlPolicyRequest = OryAccessControlPolicyAllowedInput & {
   flavor: string;
 };
 
-export const KetoMiddeware = (options: PermissionsMiddlewareOptions) => ({
-  name: 'KetoMiddeware',
+export const KetoMiddeware = (options: PermissionsMiddlewareOptions): Middleware => ({
   // For more info on this wrapper: https://moleculer.services/docs/0.14/middlewares.html#localAction-next-action
-  localAction(next: ActionHandler, action: ActionParams) {
+  localAction: (next: ActionHandler, action: ActionParams) => {
     // Helper function which will call the isEntityOwner
     const isEntityOwner = async (ctx: Context): Promise<boolean> => {
       if (typeof ctx.service?.isEntityOwner === 'function') {
@@ -206,8 +205,8 @@ export const IsOwnerMixin = (typeName: string, ownerKey = 'owner'): ServiceSchem
   };
 };
 
-export const ManageKetoPermissionsMiddleware = {
-  localAction(next: ActionHandler, action: ActionParams) {
+export const ManageKetoPermissionsMiddleware: Middleware = {
+  localAction: (next: ActionHandler, action: ActionParams) => {
     return async (ctx: Context<unknown, { user: { id: string } }>) => {
       const actionName = String(action.name).split('.').pop();
       // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
