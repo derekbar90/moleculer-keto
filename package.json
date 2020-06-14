@@ -1,6 +1,6 @@
 {
   "name": "@thesatoshicompany/moleculer-keto",
-  "version": "1.0.9",
+  "version": "1.1.0",
   "git": "https://github.com/derekbar90/moleculer-keto.git",
   "scripts": {
     "test": "yarn jest --detectOpenHandles",

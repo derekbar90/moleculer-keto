@@ -205,6 +205,11 @@ export const ManageKetoPermissionsMiddleware: Middleware = {
       // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
       // @ts-ignore
       const calledActionDetails = action.service.originalSchema.actions[actionName];
+
+      if (calledActionDetails.permissions === undefined) {
+        return next(ctx);
+      }
+
       const providedPermissionedActions = calledActionDetails.permissions.map(
         (permission: { subject: string; action: string; flavor: string }) => permission.action
       );
