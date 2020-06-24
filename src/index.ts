@@ -206,7 +206,7 @@ export const ManageKetoPermissionsMiddleware: Middleware = {
       // @ts-ignore
       const calledActionDetails = action.service.originalSchema.actions[actionName];
 
-      if (calledActionDetails.permissions === undefined) {
+      if (calledActionDetails === undefined || calledActionDetails.permissions === undefined) {
         return next(ctx);
       }
 
