@@ -76,7 +76,8 @@ export const KetoMiddeware: Middleware = {
         const { meta } = ctx;
         const { user } = meta;
         const { roles } = meta;
-        if (user === undefined || user == null) {
+
+        if (user && user.isLoggedIn === false) {
           throw new MissingUserContextError({ action: action.name });
         }
 
